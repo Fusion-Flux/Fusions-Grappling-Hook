@@ -76,7 +76,7 @@ public class GrappleItem extends Item {
            // entity.setVelocity(entity.getVelocity().add(new Vec3d(0,.08,0)));
 
             Vec3d grappleVector = hitPos.subtract( entity.getEyePos() );
-            Vec3d horizontalCorrection = grappleVector.normalize().multiply( Math.abs(entity.getVelocity().y)/2, 0, Math.abs(entity.getVelocity().y)/2 );
+            Vec3d horizontalCorrection = grappleVector.normalize().multiply( Math.abs(entity.getVelocity().y), ((Math.abs(entity.getVelocity().x)+Math.abs(entity.getVelocity().z))/2) +.08, Math.abs(entity.getVelocity().y) );
 
 
 
@@ -91,10 +91,8 @@ public class GrappleItem extends Item {
 
 
                 }
-                if (hitPos.distanceTo(entity.getEyePos()) > distance-.2) {
-
-
-                    entity.setVelocity(entity.getVelocity().add(new Vec3d(horizontalCorrection.x,0, horizontalCorrection.z)));
+                if (hitPos.distanceTo(entity.getEyePos()) > distance) {
+                    entity.setVelocity(entity.getVelocity().add(horizontalCorrection));
                 }
 
                 if (hitPos.distanceTo(entity.getEyePos()) < distance) {
