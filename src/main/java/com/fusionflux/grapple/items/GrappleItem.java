@@ -70,7 +70,7 @@ public class GrappleItem extends Item {
        // angleOfElevation = Math.toDegrees( angleOfElevation );
 
         boolean isHooked = tag.getBoolean("isHooked");
-        if(isHooked){
+        if(isHooked && !entity.isOnGround()){
             ((PlayerEntity) entity).setNoDrag(true);
             ((PlayerEntity) entity).setNoGravity(true);
            // entity.setVelocity(entity.getVelocity().add(new Vec3d(0,.08,0)));
@@ -78,11 +78,13 @@ public class GrappleItem extends Item {
             Vec3d grappleVector = hitPos.subtract( entity.getEyePos() );
             Vec3d horizontalCorrection = grappleVector.normalize().multiply( Math.abs(entity.getVelocity().y)/2, 0, Math.abs(entity.getVelocity().y)/2 );
 
+
+
             if(hitPos.y > entity.getEyePos().y) {
                 if (hitPos.distanceTo(entity.getEyePos()) > distance) {
 
-                    if(entity.getVelocity().y < 0.06 ){
-                        entity.setVelocity(entity.getVelocity().add(new Vec3d(0, Math.abs(hitPos.distanceTo(entity.getEyePos()) / distance)*.05, 0)));
+                    if(entity.getVelocity().y < 0 ){
+                        entity.setVelocity(entity.getVelocity().add(new Vec3d(0, -entity.getVelocity().y/2, 0)));
                     }
 
                         entity.setVelocity(entity.getVelocity().add(new Vec3d(0, .08, 0)));
@@ -90,6 +92,8 @@ public class GrappleItem extends Item {
 
                 }
                 if (hitPos.distanceTo(entity.getEyePos()) > distance-.2) {
+
+
                     entity.setVelocity(entity.getVelocity().add(new Vec3d(horizontalCorrection.x,0, horizontalCorrection.z)));
                 }
 
@@ -99,10 +103,25 @@ public class GrappleItem extends Item {
 
             }
 
-            if(hitPos.y < entity.getEyePos().y) {
-                    entity.setVelocity(entity.getVelocity().add(new Vec3d(0, -.08, 0)));
+            if(hitPos.y-1 < entity.getEyePos().y) {
                 if (hitPos.distanceTo(entity.getEyePos()) > distance) {
+
+                    if(entity.getVelocity().y > 0.06 ){
+                        entity.setVelocity(entity.getVelocity().add(new Vec3d(0, -entity.getVelocity().y/2, 0)));
+                    }
+
+                    entity.setVelocity(entity.getVelocity().add(new Vec3d(0, -.08, 0)));
+
+
+                }
+                if (hitPos.distanceTo(entity.getEyePos()) > distance-.2) {
+
+
                     entity.setVelocity(entity.getVelocity().add(new Vec3d(horizontalCorrection.x,0, horizontalCorrection.z)));
+                }
+
+                if (hitPos.distanceTo(entity.getEyePos()) < distance) {
+                    entity.setVelocity(entity.getVelocity().add(new Vec3d(0, -.08, 0)));
                 }
 
             }
@@ -114,6 +133,12 @@ public class GrappleItem extends Item {
         }else{
             ((PlayerEntity) entity).setNoDrag(false);
             ((PlayerEntity) entity).setNoGravity(false);
+        }
+
+        if(isHooked && entity.isOnGround()){
+            distance = hitPos.distanceTo(entity.getEyePos());
+
+            stack.getOrCreateNbt().putDouble("distance", distance);
         }
 
     }
