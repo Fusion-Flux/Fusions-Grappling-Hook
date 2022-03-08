@@ -57,7 +57,11 @@ public class GrappleItem extends Item {
 
             //Check to make sure the HitResult hits a block
             if (hitResult.getType() == HitResult.Type.BLOCK) {
-                //world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ELYTRA_FLYING, SoundCategory.NEUTRAL, 1F, 1F);
+                world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, SoundCategory.NEUTRAL, 1F, 1F);
+                world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_IRON, SoundCategory.NEUTRAL, 1F, 1F);
+                world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, SoundCategory.NEUTRAL, 1F, 1F);
+                world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_GOLD, SoundCategory.NEUTRAL, 1F, 1F);
+                world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_NETHERITE, SoundCategory.NEUTRAL, 1F, 1F);
 
                 //Gets the position of the HitResult
                 hitPos = hitResult.getPos();
@@ -92,6 +96,11 @@ public class GrappleItem extends Item {
             }
         }
         if (isHooked) {
+            world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, SoundCategory.NEUTRAL, 1F, 2F);
+            world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_IRON, SoundCategory.NEUTRAL, 1F, 2F);
+            world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, SoundCategory.NEUTRAL, 1F, 2F);
+            world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_GOLD, SoundCategory.NEUTRAL, 1F, 2F);
+            world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_NETHERITE, SoundCategory.NEUTRAL, 1F, 2F);
             stack.getOrCreateNbt().putBoolean("isHooked", false);
         }
 
@@ -170,7 +179,7 @@ public class GrappleItem extends Item {
             entity.setNoGravity(true);
 
             Vec3d grappleVector = hitPos.subtract(entity.getEyePos());
-            Vec3d horizontalCorrection = grappleVector.normalize().multiply((.08) + (Math.abs(entity.getVelocity().y) * .15), .08, (.08) + (Math.abs(entity.getVelocity().y) * .15));
+            Vec3d horizontalCorrection = grappleVector.normalize().multiply((.08) , .08, (.08));
             double testy = horizontalCorrection.y;
             horizontalCorrection = horizontalCorrection.multiply(1, 0, 1);
 
