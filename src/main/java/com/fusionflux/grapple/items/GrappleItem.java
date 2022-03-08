@@ -93,6 +93,7 @@ public class GrappleItem extends Item {
                 stack.getOrCreateNbt().putDouble("distance", distance);
 
                 stack.getOrCreateNbt().putBoolean("isHooked", true);
+                stack.getOrCreateNbt().putBoolean("initalBoost", false);
             }
         }
         if (isHooked) {
@@ -111,7 +112,7 @@ public class GrappleItem extends Item {
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
 
         NbtCompound tag = stack.getOrCreateNbt();
-
+        boolean initalBoost = tag.getBoolean("initalBoost");
         boolean isHooked = tag.getBoolean("isHooked");
         double distance = tag.getDouble("distance");
         Vec3d hitPos = Vec3d.ZERO;
@@ -180,13 +181,25 @@ public class GrappleItem extends Item {
 
             Vec3d grappleVector = hitPos.subtract(entity.getEyePos());
             Vec3d horizontalCorrection = grappleVector.normalize().multiply((.08) , .08, (.08));
+            Vec3d horizontalBoost = grappleVector.normalize().multiply((entity.getVelocity().y)*.6666 , .08, (entity.getVelocity().y)*.6666);
             double testy = horizontalCorrection.y;
             horizontalCorrection = horizontalCorrection.multiply(1, 0, 1);
 
-            if (hitPos.y > entity.getEyePos().y) {
+            if (hitPos.y >= entity.getEyePos().y) {
+
+                if (!initalBoost && hitPos.distanceTo(entity.getEyePos()) > distance) {
+                    if (Math.abs(entity.getVelocity().x) < Math.abs(horizontalBoost.x)) {
+                        entity.setVelocity(entity.getVelocity().add(-horizontalBoost.x, 0, 0));
+                    }
+                    if (Math.abs(entity.getVelocity().z) < Math.abs(horizontalBoost.z)) {
+                        entity.setVelocity(entity.getVelocity().add(0, 0, -horizontalBoost.z));
+                    }
+                    stack.getOrCreateNbt().putBoolean("initalBoost", true);
+                }
 
                 if (hitPos.distanceTo(entity.getEyePos()) > distance) {
                     entity.setVelocity(entity.getVelocity().add(horizontalCorrection));
+
                 }
                 if (hitPos.distanceTo(entity.getEyePos()) > distance) {
                     entity.setVelocity(entity.getVelocity().add(new Vec3d(0, .08, 0)));
@@ -196,15 +209,6 @@ public class GrappleItem extends Item {
                     entity.setVelocity((new Vec3d(entity.getVelocity().x, entity.getVelocity().y/2, entity.getVelocity().z)));
                 }
 
-               /* if (hitPos.distanceTo(entity.getEyePos()) > distance ) {
-
-                    if (entity.getVelocity().y < -.08) {
-                        entity.setVelocity(entity.getVelocity().add(new Vec3d(0, testy, 0)));
-                        // entity.setVelocity(new Vec3d(entity.getVelocity().x, -testy, entity.getVelocity().z));
-                    }
-                }*/
-
-
                 if (hitPos.distanceTo(entity.getEyePos()) < distance+.1) {
                     entity.setVelocity(entity.getVelocity().add(new Vec3d(0, -.08, 0)));
                 }
@@ -212,18 +216,24 @@ public class GrappleItem extends Item {
             }
 
             if (hitPos.y < entity.getEyePos().y) {
-                if (hitPos.distanceTo(entity.getEyePos()) > distance + 1) {
-
-                    if (entity.getVelocity().y < 0) {
-                        entity.setVelocity(entity.getVelocity().add(new Vec3d(0, -entity.getVelocity().y / 4, 0)));
+               /* if (hitPos.distanceTo(entity.getEyePos()) > distance) {
+                    if (Math.abs(entity.getVelocity().x) < Math.abs(horizontalBoost.x)) {
+                        entity.setVelocity(entity.getVelocity().add(-horizontalBoost.x, 0, 0));
                     }
-
-                }
+                    if (Math.abs(entity.getVelocity().z) < Math.abs(horizontalBoost.z)) {
+                        entity.setVelocity(entity.getVelocity().add(0, 0, -horizontalBoost.z));
+                    }
+                }*/
                 if (hitPos.distanceTo(entity.getEyePos()) > distance) {
                     entity.setVelocity(entity.getVelocity().add(horizontalCorrection));
                 }
+                if (hitPos.distanceTo(entity.getEyePos()) > distance && entity.getVelocity().y > 0) {
+                    entity.setVelocity((new Vec3d(entity.getVelocity().x, entity.getVelocity().y/2, entity.getVelocity().z)));
+                }
 
-                entity.setVelocity(entity.getVelocity().add(new Vec3d(0, -.08, 0)));
+                //if (hitPos.distanceTo(entity.getEyePos()) < distance+.1) {
+                    entity.setVelocity(entity.getVelocity().add(new Vec3d(0, -.08, 0)));
+               // }
             }
         }
 
