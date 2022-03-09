@@ -20,6 +20,9 @@
   "entrypoints": {
     "main": [
       "com.fusionflux.grapple.Grapple"
+    ],
+    "client": [
+      "com.fusionflux.grapple.client.GrappleClientInitalizer"
     ]
   },
   "mixins": [

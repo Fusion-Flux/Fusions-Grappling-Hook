@@ -1,17 +1,23 @@
 package com.fusionflux.grapple.items;
 
+import com.fusionflux.grapple.Grapple;
 import com.fusionflux.grapple.client.sound.GrappleSoundInstance;
+import com.fusionflux.grapple.entity.HookPoint;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.entity.FishingBobberEntityRenderer;
+import net.minecraft.client.render.entity.LeashKnotEntityRenderer;
+import net.minecraft.client.render.entity.model.LeashKnotEntityModel;
 import net.minecraft.client.sound.ElytraSoundInstance;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.item.LeadItem;
+import net.minecraft.nbt.*;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -77,6 +83,17 @@ public class GrappleItem extends Item {
                 List<Long> posZList = new ArrayList<>();
 
 
+                HookPoint hookPoint;
+                hookPoint = Grapple.HOOK_POINT.create(world);
+                assert hookPoint != null;
+                hookPoint.setPos(hitPos.x,hitPos.y,hitPos.z);
+                hookPoint.setConnected(user.getUuidAsString());
+                if (!world.isClient) {
+                    world.spawnEntity(hookPoint);
+                }
+                NbtList test = stack.getOrCreateNbt().getList("entities",11);
+                test.add(NbtHelper.fromUuid(hookPoint.getUuid()));
+                stack.getOrCreateNbt().put("entities", test);
 
                 posXList.add(Double.doubleToLongBits(hitPos.x));
                 posYList.add(Double.doubleToLongBits(hitPos.y));
@@ -85,6 +102,8 @@ public class GrappleItem extends Item {
                 stack.getOrCreateNbt().putLongArray("xList", posXList);
                 stack.getOrCreateNbt().putLongArray("yList", posYList);
                 stack.getOrCreateNbt().putLongArray("zList", posZList);
+
+
                 
                 //Gets the distance between the HitResult Position and the Players Position
                 distance = hitPos.distanceTo(user.getEyePos());
@@ -102,6 +121,21 @@ public class GrappleItem extends Item {
             world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, SoundCategory.NEUTRAL, 1F, 2F);
             world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_GOLD, SoundCategory.NEUTRAL, 1F, 2F);
             world.playSound(null, user.getPos().x,user.getPos().y,user.getPos().z, SoundEvents.ITEM_ARMOR_EQUIP_NETHERITE, SoundCategory.NEUTRAL, 1F, 2F);
+
+            NbtList UUIDs = stack.getOrCreateNbt().getList("entities",11);
+
+            for (NbtElement uuid : UUIDs) {
+                if (!world.isClient) {
+                    HookPoint hookPoint = (HookPoint) ((ServerWorld) world).getEntity(NbtHelper.toUuid(uuid));
+                    assert hookPoint != null;
+                    hookPoint.kill();
+                }
+            }
+
+            NbtList clearUUIDs = new NbtList();
+            stack.getOrCreateNbt().put("entities", clearUUIDs);
+
+
             stack.getOrCreateNbt().putBoolean("isHooked", false);
         }
 
@@ -128,7 +162,7 @@ public class GrappleItem extends Item {
 
         int lastValue = posXList.size()-1;
 
-        if(lastValue>1){
+        if(lastValue>=1){
 
             Vec3d startHitPos = new Vec3d(Double.longBitsToDouble(posXList.get(lastValue-1)), Double.longBitsToDouble(posYList.get(lastValue-1)), Double.longBitsToDouble(posZList.get(lastValue-1)));
 
@@ -140,6 +174,18 @@ public class GrappleItem extends Item {
                 distance += otherPoint.distanceTo(startHitPos);
                 stack.getOrCreateNbt().putDouble("distance", distance);
 
+                NbtList UUIDs = stack.getOrCreateNbt().getList("entities",11);
+                if (!world.isClient) {
+                    HookPoint hookPoint = (HookPoint) ((ServerWorld) world).getEntity(NbtHelper.toUuid(UUIDs.get(lastValue)));
+                    assert hookPoint != null;
+                    hookPoint.kill();
+                    hookPoint = (HookPoint) ((ServerWorld) world).getEntity(NbtHelper.toUuid(UUIDs.get(lastValue-1)));
+                    assert hookPoint != null;
+                    hookPoint.setConnected(entity.getUuidAsString());
+                }
+                UUIDs.remove(lastValue);
+                stack.getOrCreateNbt().put("entities", UUIDs);
+                System.out.println(stack.getOrCreateNbt().getList("entities",11));
                 posXList.remove(lastValue);
                 posYList.remove(lastValue);
                 posZList.remove(lastValue);
@@ -160,6 +206,25 @@ public class GrappleItem extends Item {
                 posZList.add(Double.doubleToLongBits(hitResult.getPos().z));
                 distance -= hitResult.getPos().distanceTo(startHitPos);
                 stack.getOrCreateNbt().putDouble("distance", distance);
+
+                HookPoint hookPoint;
+                hookPoint = Grapple.HOOK_POINT.create(world);
+                assert hookPoint != null;
+                hookPoint.setPos(hitResult.getPos().x,hitResult.getPos().y,hitResult.getPos().z);
+                if (!world.isClient) {
+                    world.spawnEntity(hookPoint);
+                    NbtList UUIDs = stack.getOrCreateNbt().getList("entities",11);
+                    HookPoint hookPoint2 = (HookPoint) ((ServerWorld) world).getEntity(NbtHelper.toUuid(UUIDs.get(lastValue)));
+                    assert hookPoint2 != null;
+                    hookPoint2.setConnected(hookPoint.getUuidAsString());
+                }
+
+
+                NbtList UUIDs = stack.getOrCreateNbt().getList("entities",11);
+                UUIDs.add(NbtHelper.fromUuid(hookPoint.getUuid()));
+                stack.getOrCreateNbt().put("entities", UUIDs);
+                System.out.println(stack.getOrCreateNbt().getList("entities",11));
+
             }
         }
             lastValue = posXList.size()-1;
