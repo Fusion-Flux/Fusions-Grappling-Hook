@@ -4,9 +4,10 @@
   "package": "com.fusionflux.grapple.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "PlayerEntityMixin"
   ],
   "client": [
-    "ExampleMixin"
+    "WorldMixin"
   ],
   "injectors": {
     "defaultRequire": 1

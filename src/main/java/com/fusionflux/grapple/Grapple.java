@@ -29,7 +29,7 @@ public class Grapple implements ModInitializer {
 	public static final EntityType<HookPoint> HOOK_POINT = Registry.register(
 			Registry.ENTITY_TYPE,
 			new Identifier("entitytesting", "hook_point"),
-			FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, HookPoint::new).dimensions(EntityDimensions.fixed(1f, 1f)).build()
+			FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, HookPoint::new).dimensions(EntityDimensions.fixed(0f, 0f)).build()
 	);
 
 	@Override

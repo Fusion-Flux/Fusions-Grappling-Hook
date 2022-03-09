@@ -22,13 +22,20 @@ public class HookPoint extends Entity {
 
     public HookPoint(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
+        this.ignoreCameraFrustum = true;
     }
 
     public static final TrackedData<String> CONNECTED_ENTITY = DataTracker.registerData(HookPoint.class, TrackedDataHandlerRegistry.STRING);
+    public static final TrackedData<Integer> COLOR = DataTracker.registerData(HookPoint.class, TrackedDataHandlerRegistry.INTEGER);
 
+@Override
+    public boolean shouldRender(double distance) {
+    return  true;
+    }
     @Override
     protected void initDataTracker() {
         this.getDataTracker().startTracking(CONNECTED_ENTITY, "null");
+        this.getDataTracker().startTracking(COLOR, 0);
     }
 
     public String getConnected() {
@@ -41,13 +48,23 @@ public class HookPoint extends Entity {
 
     @Override
     protected void readCustomDataFromNbt(NbtCompound nbt) {
-
+            this.setColor(nbt.getInt("color"));
     }
 
     @Override
     protected void writeCustomDataToNbt(NbtCompound nbt) {
-
+        nbt.putFloat("color", this.getColor());
     }
+
+    public Integer getColor() {
+        return getDataTracker().get(COLOR);
+    }
+
+    public void setColor(Integer color) {
+        this.getDataTracker().set(COLOR, color);
+    }
+
+
 
     @Override
     public Packet<?> createSpawnPacket() {
