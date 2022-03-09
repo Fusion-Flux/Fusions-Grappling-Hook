@@ -7,9 +7,5 @@ import java.util.UUID;
 public interface Accessors {
 
     Entity getEntity(UUID uuid);
-    double getPrevEyeX();
-    double getPrevEyeY();
-    double getPrevEyeZ();
-
 
 }

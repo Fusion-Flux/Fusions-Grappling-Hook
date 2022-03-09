@@ -20,6 +20,7 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
         super(ctx);
     }
 
+    private static final float RADIUS = 0.05f;
     private static final Quaternion X_90_ROT = Vec3f.POSITIVE_Y.getDegreesQuaternion(90);
     private static final Vec3d UP = new Vec3d(0, 1, 0);
 
@@ -41,7 +42,7 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
        }
        final Vec3d end = new Vec3d(otherEntity.getLerpedPos(tickDelta).x,otherEntity.getLerpedPos(tickDelta).y+otherEntity.getHeight()+offset,otherEntity.getLerpedPos(tickDelta).z);
        Vec3d delta = end.subtract(start);
-       delta = delta.multiply(MathHelper.fastInverseSqrt(delta.lengthSquared()));
+       delta = delta.normalize();
        matrices.push();
        if (!UP.equals(delta)) {
            final Vec3d axis = UP.crossProduct(delta).normalize();
@@ -64,6 +65,8 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
     private static void render(final HookPoint entity,final MatrixStack matrixStack, final VertexConsumerProvider consumers, final Vec3d start, final Vec3d end, final int startLight, final int endLight) {
         final VertexConsumer consumer = consumers.getBuffer(RenderLayer.getEntitySolid(/*Your Texture here*/BeaconBlockEntityRenderer.BEAM_TEXTURE));
         final double length = end.distanceTo(start);
+        renderCap(entity,consumer, 0, startLight, false, matrixStack);
+        renderCap(entity,consumer, length, endLight, true, matrixStack);
         side(entity,matrixStack, consumer, length, startLight, endLight);
         matrixStack.multiply(X_90_ROT);
         side(entity,matrixStack, consumer, length, startLight, endLight);
@@ -71,6 +74,32 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
         side(entity,matrixStack, consumer, length, startLight, endLight);
         matrixStack.multiply(X_90_ROT);
         side(entity,matrixStack, consumer, length, startLight, endLight);
+    }
+
+    private static void renderCap(HookPoint entity,VertexConsumer vertexConsumer, double d, int light, boolean end, MatrixStack stack) {
+        int color = entity.getColor() * -1;
+        if (color == -16383998) {
+            color = 1908001;
+        }
+        if (color == 16383998) {
+            color = -1908001;
+        }
+        int r = (color & 0xFF0000) >> 16;
+        int g = (color & 0xFF00) >> 8;
+        int b = color & 0xFF;
+        final Matrix4f model = stack.peek().getPositionMatrix();
+        final Matrix3f normal = stack.peek().getNormalMatrix();
+        if(end) {
+            vertexConsumer.vertex(model, RADIUS, (float)d, -RADIUS).color(r,g,b,1f).texture(0, 0).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(normal, 0, 1, 0).next();
+            vertexConsumer.vertex(model, -RADIUS, (float)d, -RADIUS).color(r,g,b,1f).texture(0, 1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(normal, 0, 1, 0).next();
+            vertexConsumer.vertex(model, -RADIUS, (float)d, RADIUS).color(r,g,b,1f).texture(1, 1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(normal, 0, 1, 0).next();
+            vertexConsumer.vertex(model, RADIUS, (float)d, RADIUS).color(r,g,b,1f).texture(1, 0).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(normal, 0, 1, 0).next();
+        } else {
+            vertexConsumer.vertex(model, RADIUS, (float)d, RADIUS).color(r,g,b,1f).texture(1, 0).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(normal, 0, 1, 0).next();
+            vertexConsumer.vertex(model, -RADIUS, (float)d, RADIUS).color(r,g,b,1f).texture(0, 0).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(normal, 0, 1, 0).next();
+            vertexConsumer.vertex(model, -RADIUS, (float)d, -RADIUS).color(r,g,b,1f).texture(0, 1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(normal, 0, 1, 0).next();
+            vertexConsumer.vertex(model, RADIUS, (float)d, -RADIUS).color(r,g,b,1f).texture(1, 1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(normal, 0, 1, 0).next();
+        }
     }
 
     private static void side(final HookPoint entity,final MatrixStack stack, final VertexConsumer vertexConsumer, final double length, final int lightStart, final int lightEnd) {
@@ -91,10 +120,10 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
         int b = color & 0xFF;
 
 
-        vertexConsumer.vertex(model, rad, 0, -rad).color(r,g,b,1f).texture(0, 0).overlay(OverlayTexture.DEFAULT_UV).light(lightStart).normal(normal, 1, 0, 0).next();
-        vertexConsumer.vertex(model, rad, (float) length, -rad).color(r,g,b,1f).texture(0, 1).overlay(OverlayTexture.DEFAULT_UV).light(lightEnd).normal(normal, 1, 0, 0).next();
-        vertexConsumer.vertex(model, rad, (float) length, rad).color(r,g,b,1f).texture(1, 1).overlay(OverlayTexture.DEFAULT_UV).light(lightEnd).normal(normal, 1, 0, 0).next();
-        vertexConsumer.vertex(model, rad, 0, rad).color(r,g,b,1f).texture(1, 0).overlay(OverlayTexture.DEFAULT_UV).light(lightStart).normal(normal, 1, 0, 0).next();
+        vertexConsumer.vertex(model, RADIUS, 0, -RADIUS).color(r,g,b,1f).texture(0, 0).overlay(OverlayTexture.DEFAULT_UV).light(lightStart).normal(normal, 1, 0, 0).next();
+        vertexConsumer.vertex(model, RADIUS, (float) length, -RADIUS).color(r,g,b,1f).texture(0, 1).overlay(OverlayTexture.DEFAULT_UV).light(lightEnd).normal(normal, 1, 0, 0).next();
+        vertexConsumer.vertex(model, RADIUS, (float) length, RADIUS).color(r,g,b,1f).texture(1, 1).overlay(OverlayTexture.DEFAULT_UV).light(lightEnd).normal(normal, 1, 0, 0).next();
+        vertexConsumer.vertex(model, RADIUS, 0, RADIUS).color(r,g,b,1f).texture(1, 0).overlay(OverlayTexture.DEFAULT_UV).light(lightStart).normal(normal, 1, 0, 0).next();
     }
 
 
