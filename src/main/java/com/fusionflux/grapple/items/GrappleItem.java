@@ -4,7 +4,9 @@ import com.fusionflux.grapple.Grapple;
 import com.fusionflux.grapple.entity.HookPoint;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeableItem;
@@ -15,12 +17,14 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
@@ -143,7 +147,9 @@ public class GrappleItem extends Item implements DyeableItem {
                 break;
             }
         }
-        Vec3d entityPos = new Vec3d(entity.getPos().x,entity.getPos().y + entity.getHeight(),entity.getPos().z);
+        Vec3d entityPos = new Vec3d(entity.getPos().x,entity.getPos().y + (entity.getHeight()/2),entity.getPos().z);
+
+
         if (holdingHook) {
             NbtCompound tag = stack.getOrCreateNbt();
             boolean initalBoost = tag.getBoolean("initalBoost");
@@ -198,6 +204,8 @@ public class GrappleItem extends Item implements DyeableItem {
 
                 }
                 lastValue = posXList.size() - 1;
+
+
 
                 if (lastValue >= 1) {
 

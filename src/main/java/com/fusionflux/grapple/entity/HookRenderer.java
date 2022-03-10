@@ -1,13 +1,20 @@
 package com.fusionflux.grapple.entity;
 
+import com.fusionflux.grapple.Grapple;
 import com.fusionflux.grapple.accessors.Accessors;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BeaconBlockEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.entity.FishingBobberEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 
@@ -20,7 +27,7 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
         super(ctx);
     }
 
-    private static final float RADIUS = 0.055f;
+    private static final float RADIUS = 0.02f;
     private static final Quaternion X_90_ROT = Vec3f.POSITIVE_Y.getDegreesQuaternion(90);
     private static final Vec3d UP = new Vec3d(0, 1, 0);
 
@@ -40,7 +47,51 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
        if(otherEntity.getType()== EntityType.PLAYER){
            offset = .1;
        }
-       final Vec3d end = new Vec3d(otherEntity.getLerpedPos(tickDelta).x,otherEntity.getLerpedPos(tickDelta).y+otherEntity.getHeight()+offset,otherEntity.getLerpedPos(tickDelta).z);
+
+
+
+        Vec3d end = new Vec3d(otherEntity.getLerpedPos(tickDelta).x,otherEntity.getLerpedPos(tickDelta).y+otherEntity.getHeight()+offset,otherEntity.getLerpedPos(tickDelta).z);
+
+
+
+       if(otherEntity.getType()== EntityType.PLAYER){
+           PlayerEntity playerEntity = (PlayerEntity) otherEntity;
+           int j = playerEntity.getMainArm() == Arm.RIGHT ? 1 : -1;
+           ItemStack itemStack = playerEntity.getMainHandStack();
+           if (!itemStack.isOf(Grapple.GRAPPLE)) {
+               j = -j;
+           }
+
+           float h = playerEntity.getHandSwingProgress(tickDelta);
+           float k = MathHelper.sin(MathHelper.sqrt(h) * (float) Math.PI);
+           float l = MathHelper.lerp(tickDelta, playerEntity.prevBodyYaw, playerEntity.bodyYaw) * (float) (Math.PI / 180.0);
+           double d = MathHelper.sin(l);
+           double e = MathHelper.cos(l);
+           double m = (double) j * 0.35;
+           double o;
+           double p;
+           double q;
+           float r;
+           if ((this.dispatcher.gameOptions == null || this.dispatcher.gameOptions.getPerspective().isFirstPerson())
+                   && playerEntity == MinecraftClient.getInstance().player) {
+               double s = 960.0 / this.dispatcher.gameOptions.fov;
+               Vec3d vec3d = this.dispatcher.camera.getProjection().getPosition((float) j * 0.525F, -0.1F);
+               vec3d = vec3d.multiply(s);
+               vec3d = vec3d.rotateY(k * 0.5F);
+               vec3d = vec3d.rotateX(-k * 0.7F);
+               o = MathHelper.lerp(tickDelta, playerEntity.prevX, playerEntity.getX()) + vec3d.x;
+               p = MathHelper.lerp(tickDelta, playerEntity.prevY, playerEntity.getY()) + vec3d.y;
+               q = MathHelper.lerp(tickDelta, playerEntity.prevZ, playerEntity.getZ()) + vec3d.z;
+               r = playerEntity.getStandingEyeHeight();
+           } else {
+               o = MathHelper.lerp(tickDelta, playerEntity.prevX, playerEntity.getX()) - e * m - d * 0.8;
+               p = playerEntity.prevY + (double) playerEntity.getStandingEyeHeight() + (playerEntity.getY() - playerEntity.prevY) * (double) tickDelta - 0.45;
+               q = MathHelper.lerp(tickDelta, playerEntity.prevZ, playerEntity.getZ()) - d * m + e * 0.8;
+               r = playerEntity.isInSneakingPose() ? -0.1875F : 0.0F;
+           }
+           end = new Vec3d(o,p+r,q);
+       }
+
        Vec3d delta = end.subtract(start);
        delta = delta.normalize();
        matrices.push();
@@ -106,7 +157,6 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
         final Matrix4f model = stack.peek().getPositionMatrix();
         final Matrix3f normal = stack.peek().getNormalMatrix();
         //Radius of rope here
-        final float rad = 0.04875f;
 
         int color = entity.getColor() * -1;
         if (color == -16383998) {
