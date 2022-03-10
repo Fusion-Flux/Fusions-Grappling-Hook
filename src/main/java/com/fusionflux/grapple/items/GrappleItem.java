@@ -170,15 +170,15 @@ public class GrappleItem extends Item implements DyeableItem {
 
 
 
-                Vec3d startHitPos = new Vec3d(Double.longBitsToDouble(posXList.get(lastValue)), Double.longBitsToDouble(posYList.get(lastValue)), Double.longBitsToDouble(posZList.get(lastValue)));
+                Vec3d prevHitPos = new Vec3d(Double.longBitsToDouble(posXList.get(lastValue)), Double.longBitsToDouble(posYList.get(lastValue)), Double.longBitsToDouble(posZList.get(lastValue)));
 
-                BlockHitResult hitResult = static_raycastBlock(world, entityPos, startHitPos, entity, pos -> Objects.equals(pos, new BlockPos(entityPos.x, entityPos.y, entityPos.z)));
+                BlockHitResult hitResult = static_raycastBlock(world, entityPos, prevHitPos, entity, pos -> Objects.equals(pos, new BlockPos(entityPos.x, entityPos.y, entityPos.z)));
 
-                if (hitResult.getPos() != startHitPos) {
+                if (hitResult.getPos() != prevHitPos) {
                         posXList.add(Double.doubleToLongBits(hitResult.getPos().x));
                         posYList.add(Double.doubleToLongBits(hitResult.getPos().y));
                         posZList.add(Double.doubleToLongBits(hitResult.getPos().z));
-                        distance -= hitResult.getPos().distanceTo(startHitPos);
+                        distance -= hitResult.getPos().distanceTo(prevHitPos);
                         stack.getOrCreateNbt().putDouble("distance", distance);
 
                         HookPoint hookPoint;
@@ -190,8 +190,10 @@ public class GrappleItem extends Item implements DyeableItem {
                             world.spawnEntity(hookPoint);
                             NbtList UUIDs = stack.getOrCreateNbt().getList("entities", 11);
                             HookPoint hookPoint2 = (HookPoint) ((ServerWorld) world).getEntity(NbtHelper.toUuid(UUIDs.get(lastValue)));
-                            assert hookPoint2 != null;
-                            hookPoint2.setConnected(hookPoint.getUuidAsString());
+                            if (hookPoint2 != null)
+                            {
+                                hookPoint2.setConnected(hookPoint.getUuidAsString());
+                            }
                             hookPoint.setConnected(entity.getUuidAsString());
                         }
 
@@ -199,7 +201,7 @@ public class GrappleItem extends Item implements DyeableItem {
                         NbtList UUIDs = stack.getOrCreateNbt().getList("entities", 11);
                         UUIDs.add(NbtHelper.fromUuid(hookPoint.getUuid()));
                         stack.getOrCreateNbt().put("entities", UUIDs);
-                        System.out.println(stack.getOrCreateNbt().getList("entities", 11));
+                        //System.out.println(stack.getOrCreateNbt().getList("entities", 11));
 
 
                 }
@@ -209,14 +211,30 @@ public class GrappleItem extends Item implements DyeableItem {
 
                 if (lastValue >= 1) {
 
-                    startHitPos = new Vec3d(Double.longBitsToDouble(posXList.get(lastValue - 1)), Double.longBitsToDouble(posYList.get(lastValue - 1)), Double.longBitsToDouble(posZList.get(lastValue - 1)));
+                    prevHitPos = new Vec3d(Double.longBitsToDouble(posXList.get(lastValue - 1)), Double.longBitsToDouble(posYList.get(lastValue - 1)), Double.longBitsToDouble(posZList.get(lastValue - 1)));
 
-                    hitResult = static_raycastBlock(world, entityPos, startHitPos, entity, pos -> Objects.equals(pos, new BlockPos(entityPos.x, entityPos.y, entityPos.z)));
 
-                    if (hitResult.getPos() == startHitPos) {
+                    Vec3d currentHookPos = new Vec3d(Double.longBitsToDouble(posXList.get(lastValue)), Double.longBitsToDouble(posYList.get(lastValue)), Double.longBitsToDouble(posZList.get(lastValue)));
+
+                    Vec3d vec1 = prevHitPos.subtract(currentHookPos);
+
+                    Vec3d vec2 = prevHitPos.subtract(entityPos);
+
+                    double angle = Math.acos( vec1.dotProduct( vec2 ) / ( vec1.length() * vec2.length() ));
+
+                    boolean shouldUnhook = false;
+
+                    if(Math.toDegrees(angle) > 90){
+                        shouldUnhook = true;
+                    }
+
+                    hitResult = static_raycastBlock(world, entityPos, prevHitPos, entity, pos -> Objects.equals(pos, new BlockPos(entityPos.x, entityPos.y, entityPos.z)));
+
+
+                    if (hitResult.getPos() == prevHitPos && shouldUnhook) {
                         Vec3d otherPoint = new Vec3d(Double.longBitsToDouble(posXList.get(lastValue)), Double.longBitsToDouble(posYList.get(lastValue)), Double.longBitsToDouble(posZList.get(lastValue)));
 
-                        distance += otherPoint.distanceTo(startHitPos);
+                        distance += otherPoint.distanceTo(prevHitPos);
                         stack.getOrCreateNbt().putDouble("distance", distance);
 
                         NbtList UUIDs = stack.getOrCreateNbt().getList("entities", 11);
@@ -230,7 +248,7 @@ public class GrappleItem extends Item implements DyeableItem {
                         }
                         UUIDs.remove(lastValue);
                         stack.getOrCreateNbt().put("entities", UUIDs);
-                        System.out.println(stack.getOrCreateNbt().getList("entities", 11));
+                        //System.out.println(stack.getOrCreateNbt().getList("entities", 11));
                         posXList.remove(lastValue);
                         posYList.remove(lastValue);
                         posZList.remove(lastValue);
