@@ -20,7 +20,7 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
         super(ctx);
     }
 
-    private static final float RADIUS = 0.05f;
+    private static final float RADIUS = 0.055f;
     private static final Quaternion X_90_ROT = Vec3f.POSITIVE_Y.getDegreesQuaternion(90);
     private static final Vec3d UP = new Vec3d(0, 1, 0);
 

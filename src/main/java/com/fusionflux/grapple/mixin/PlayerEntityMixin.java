@@ -33,28 +33,32 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 	public void dropItem(ItemStack stack, boolean throwRandomly, boolean retainOwnership, CallbackInfoReturnable<ItemEntity> cir) {
 		if(stack.isOf(Grapple.GRAPPLE)){
 			this.setNoDrag(false);
-			this.setNoGravity(false);
 
 			NbtList UUIDs = stack.getOrCreateNbt().getList("entities", 11);
 
 			for (NbtElement uuid : UUIDs) {
-				if (!world.isClient) {
-					HookPoint hookPoint = (HookPoint) ((ServerWorld) world).getEntity(NbtHelper.toUuid(uuid));
+				if (!this.world.isClient) {
+					HookPoint hookPoint = (HookPoint) ((ServerWorld) this.world).getEntity(NbtHelper.toUuid(uuid));
 					assert hookPoint != null;
 					hookPoint.kill();
 				}
 			}
+			if(!this.world.isClient) {
+				NbtList clearUUIDs = new NbtList();
+				stack.getOrCreateNbt().put("entities", clearUUIDs);
+				List<Long> emptyList = new ArrayList<>();
+				stack.getOrCreateNbt().putLongArray("xList", emptyList);
+				stack.getOrCreateNbt().putLongArray("yList", emptyList);
+				stack.getOrCreateNbt().putLongArray("zList", emptyList);
 
-			NbtList clearUUIDs = new NbtList();
-			stack.getOrCreateNbt().put("entities", clearUUIDs);
+				this.setNoGravity(false);
 
-			List<Long> emptyList = new ArrayList<>();
-			stack.getOrCreateNbt().putLongArray("xList", emptyList);
-			stack.getOrCreateNbt().putLongArray("yList", emptyList);
-			stack.getOrCreateNbt().putLongArray("zList", emptyList);
+				stack.getOrCreateNbt().putBoolean("isHooked", false);
+			}
 
-			stack.getOrCreateNbt().putBoolean("isHooked", false);
-			this.setNoDrag(false);
+				this.setNoDrag(false);
+
+
 		}
 	}
 
