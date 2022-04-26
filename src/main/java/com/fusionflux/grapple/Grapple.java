@@ -29,7 +29,6 @@ public class Grapple implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		GrapplePackets.registerPackets();
 		Registry.register(Registry.ITEM, new Identifier("grapple", "grapple"), GRAPPLE);
 		LOGGER.info("Hello Fabric world!");
 	}

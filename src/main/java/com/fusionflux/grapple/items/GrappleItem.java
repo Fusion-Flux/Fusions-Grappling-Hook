@@ -2,6 +2,8 @@ package com.fusionflux.grapple.items;
 
 import com.fusionflux.grapple.Grapple;
 import com.fusionflux.grapple.entity.HookPoint;
+import me.andrew.gravitychanger.api.GravityChangerAPI;
+import me.andrew.gravitychanger.util.RotationUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -231,7 +233,7 @@ public class GrappleItem extends Item implements DyeableItem {
                     hitResult = static_raycastBlock(world, entityPos, prevHitPos, entity, pos -> Objects.equals(pos, new BlockPos(entityPos.x, entityPos.y, entityPos.z)));
 
 
-                    if (hitResult.getPos() == prevHitPos && shouldUnhook) {
+                    if (hitResult.getPos() == prevHitPos) {
                         Vec3d otherPoint = new Vec3d(Double.longBitsToDouble(posXList.get(lastValue)), Double.longBitsToDouble(posYList.get(lastValue)), Double.longBitsToDouble(posZList.get(lastValue)));
 
                         distance += otherPoint.distanceTo(prevHitPos);
@@ -263,53 +265,56 @@ public class GrappleItem extends Item implements DyeableItem {
                     ((LivingEntity) entity).setNoDrag(true);
                     entity.setNoGravity(true);
 
+                    //entity.setVelocity(new Vec3d(entity.getVelocity().y,entity.getVelocity().x,entity.getVelocity().z));
+
+                    Vec3d gotVelocity = entity.getVelocity();
+
                     Vec3d grappleVector = hitPos.subtract(entityPos);
+
+                    grappleVector = RotationUtil.vecWorldToPlayer(grappleVector, GravityChangerAPI.getGravityDirection((PlayerEntity) entity));
+
                     Vec3d horizontalCorrection = grappleVector.normalize().multiply((.08), .08, (.08));
-                    Vec3d horizontalBoost = grappleVector.normalize().multiply((entity.getVelocity().y) * .6666, .08, (entity.getVelocity().y) * .6666);
+
+                    //horizontalCorrection = RotationUtil.vecWorldToPlayer(horizontalCorrection, GravityChangerAPI.getGravityDirection((PlayerEntity) entity));
+
+                    Vec3d horizontalBoost = grappleVector.normalize().multiply(-Math.abs(gotVelocity.y) * .6666, .08, -Math.abs(gotVelocity.y) * .6666);
                     horizontalCorrection = horizontalCorrection.multiply(1, 0, 1);
 
-                    if (hitPos.y >= entity.getPos().y+entity.getHeight()) {
 
-                        if (!initalBoost && hitPos.distanceTo(entityPos) > distance) {
-                            if (Math.abs(entity.getVelocity().x) < Math.abs(horizontalBoost.x)) {
-                                entity.setVelocity(entity.getVelocity().add(-horizontalBoost.x, 0, 0));
-                            }
-                            if (Math.abs(entity.getVelocity().z) < Math.abs(horizontalBoost.z)) {
-                                entity.setVelocity(entity.getVelocity().add(0, 0, -horizontalBoost.z));
-                            }
-                            stack.getOrCreateNbt().putBoolean("initalBoost", true);
+                    if (!initalBoost && hitPos.distanceTo(entityPos) > distance) {
+                        if (Math.abs(gotVelocity.x) < Math.abs(horizontalBoost.x)) {
+                            gotVelocity=(gotVelocity.add(-horizontalBoost.x, 0, 0));
                         }
-
-                        if (hitPos.distanceTo(entityPos) > distance) {
-                            entity.setVelocity(entity.getVelocity().add(horizontalCorrection));
-
+                        if (Math.abs(gotVelocity.z) < Math.abs(horizontalBoost.z)) {
+                            gotVelocity=(gotVelocity.add(0, 0, -horizontalBoost.z));
                         }
-                        if (hitPos.distanceTo(entityPos) > distance) {
-                            entity.setVelocity(entity.getVelocity().add(new Vec3d(0, .08, 0)));
-                        }
-
-                        if (hitPos.distanceTo(entityPos) > distance && entity.getVelocity().y < 0) {
-                            entity.setVelocity((new Vec3d(entity.getVelocity().x, entity.getVelocity().y / 2, entity.getVelocity().z)));
-                        }
-
-                        if (hitPos.distanceTo(entityPos) < distance + .1) {
-                            entity.setVelocity(entity.getVelocity().add(new Vec3d(0, -.08, 0)));
-                        }
-
+                        stack.getOrCreateNbt().putBoolean("initalBoost", true);
                     }
 
-                    if (hitPos.y < entity.getPos().y + entity.getHeight()) {
-                        if (hitPos.distanceTo(entityPos) > distance) {
-                            entity.setVelocity(entity.getVelocity().add(horizontalCorrection));
-                        }
-                        if (hitPos.distanceTo(entityPos) > distance && entity.getVelocity().y > 0) {
-                            entity.setVelocity((new Vec3d(entity.getVelocity().x, entity.getVelocity().y / 2, entity.getVelocity().z)));
-                        }
-                        entity.setVelocity(entity.getVelocity().add(new Vec3d(0, -.08, 0)));
+                    if (hitPos.distanceTo(entityPos) > distance) {
+                        gotVelocity=(gotVelocity.add(horizontalCorrection));
+
                     }
+                    if (hitPos.distanceTo(entityPos) > distance && grappleVector.y >=0) {
+                        gotVelocity=(gotVelocity.add(new Vec3d(0, .08, 0)));
+                    }
+
+                    if (hitPos.distanceTo(entityPos) > distance && gotVelocity.y < 0) {
+                        gotVelocity=((new Vec3d(gotVelocity.x, gotVelocity.y / 2, gotVelocity.z)));
+                    }
+
+                    if (hitPos.distanceTo(entityPos) < distance + .1) {
+                        gotVelocity=(gotVelocity.add(new Vec3d(0, -.08, 0)));
+                    }else if(grappleVector.y <=0){
+                        gotVelocity=(gotVelocity.add(new Vec3d(0, -.08, 0)));
+                    }
+                   // gotVelocity = new Vec3d(-gotVelocity.getX(),-gotVelocity.getY(),-gotVelocity.getZ());
+                    entity.setVelocity(gotVelocity);
+                   // entity.setVelocity(new Vec3d(gotVelocity.y,gotVelocity.x,gotVelocity.z));
                 }
-
                 entity.setVelocity(entity.getVelocity().multiply(.98));
+                //entity.setVelocity(RotationUtil.vecPlayerToWorld(entity.getVelocity().multiply(.98),GravityChangerAPI.getGravityDirection((PlayerEntity) entity).getOpposite() ));
+                //entity.setVelocity(new Vec3d(entity.getVelocity().y,entity.getVelocity().x,entity.getVelocity().z));
 
                 stack.getOrCreateNbt().putLongArray("xList", posXList);
                 stack.getOrCreateNbt().putLongArray("yList", posYList);

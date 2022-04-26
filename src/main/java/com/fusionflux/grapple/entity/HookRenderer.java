@@ -2,6 +2,8 @@ package com.fusionflux.grapple.entity;
 
 import com.fusionflux.grapple.Grapple;
 import com.fusionflux.grapple.accessors.Accessors;
+import me.andrew.gravitychanger.api.GravityChangerAPI;
+import me.andrew.gravitychanger.util.RotationUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BeaconBlockEntityRenderer;
@@ -50,49 +52,51 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
 
 
 
-        Vec3d end = new Vec3d(otherEntity.getLerpedPos(tickDelta).x,otherEntity.getLerpedPos(tickDelta).y+otherEntity.getHeight()+offset,otherEntity.getLerpedPos(tickDelta).z);
+        Vec3d lineStart = new Vec3d(otherEntity.getLerpedPos(tickDelta).x,otherEntity.getLerpedPos(tickDelta).y+otherEntity.getHeight()+offset,otherEntity.getLerpedPos(tickDelta).z);
 
 
 
        if(otherEntity.getType()== EntityType.PLAYER){
+           Direction gravityDirection = (GravityChangerAPI.getGravityDirection((PlayerEntity) otherEntity));
            PlayerEntity playerEntity = (PlayerEntity) otherEntity;
-           int j = playerEntity.getMainArm() == Arm.RIGHT ? 1 : -1;
+           int armOffset = playerEntity.getMainArm() == Arm.RIGHT ? 1 : -1;
            ItemStack itemStack = playerEntity.getMainHandStack();
-           if (!itemStack.isOf(Grapple.GRAPPLE)) {
-               j = -j;
+           if (!itemStack.isOf(Items.FISHING_ROD)) {
+               armOffset = -armOffset;
            }
 
-           float h = playerEntity.getHandSwingProgress(tickDelta);
-           float k = MathHelper.sin(MathHelper.sqrt(h) * (float) Math.PI);
-           float l = MathHelper.lerp(tickDelta, playerEntity.prevBodyYaw, playerEntity.bodyYaw) * (float) (Math.PI / 180.0);
-           double d = MathHelper.sin(l);
-           double e = MathHelper.cos(l);
-           double m = (double) j * 0.35;
-           double o;
-           double p;
-           double q;
-           float r;
-           if ((this.dispatcher.gameOptions == null || this.dispatcher.gameOptions.getPerspective().isFirstPerson())
-                   && playerEntity == MinecraftClient.getInstance().player) {
-               double s = 960.0 / this.dispatcher.gameOptions.fov;
-               Vec3d vec3d = this.dispatcher.camera.getProjection().getPosition((float) j * 0.525F, -0.1F);
-               vec3d = vec3d.multiply(s);
-               vec3d = vec3d.rotateY(k * 0.5F);
-               vec3d = vec3d.rotateX(-k * 0.7F);
-               o = MathHelper.lerp(tickDelta, playerEntity.prevX, playerEntity.getX()) + vec3d.x;
-               p = MathHelper.lerp(tickDelta, playerEntity.prevY, playerEntity.getY()) + vec3d.y;
-               q = MathHelper.lerp(tickDelta, playerEntity.prevZ, playerEntity.getZ()) + vec3d.z;
-               r = playerEntity.getStandingEyeHeight();
+           float handSwingProgress = playerEntity.getHandSwingProgress(tickDelta);
+           float sinHandSwingProgress = MathHelper.sin(MathHelper.sqrt(handSwingProgress) * 3.1415927F);
+           float radBodyYaw = MathHelper.lerp(tickDelta, playerEntity.prevBodyYaw, playerEntity.bodyYaw) * 0.017453292F;
+           double sinBodyYaw = MathHelper.sin(radBodyYaw);
+           double cosBodyYaw = MathHelper.cos(radBodyYaw);
+           double scaledArmOffset = (double) armOffset * 0.35D;
+           //Vec3d lineStart;
+           if ((this.dispatcher.gameOptions == null || this.dispatcher.gameOptions.getPerspective().isFirstPerson()) && playerEntity == MinecraftClient.getInstance().player) {
+               Vec3d lineOffset = RotationUtil.vecWorldToPlayer(this.dispatcher.camera.getProjection().getPosition((float) armOffset * 0.525F, -0.1F), gravityDirection);
+               lineOffset = lineOffset.multiply(960.0D / this.dispatcher.gameOptions.fov);
+               lineOffset = lineOffset.rotateY(sinHandSwingProgress * 0.5F);
+               lineOffset = lineOffset.rotateX(-sinHandSwingProgress * 0.7F);
+               lineStart = new Vec3d(
+                       MathHelper.lerp(tickDelta, playerEntity.prevX, playerEntity.getX()),
+                       MathHelper.lerp(tickDelta, playerEntity.prevY, playerEntity.getY()),
+                       MathHelper.lerp(tickDelta, playerEntity.prevZ, playerEntity.getZ())
+               ).add(RotationUtil.vecPlayerToWorld(lineOffset.add(0.0D, playerEntity.getStandingEyeHeight(), 0.0D), gravityDirection));
            } else {
-               o = MathHelper.lerp(tickDelta, playerEntity.prevX, playerEntity.getX()) - e * m - d * 0.8;
-               p = playerEntity.prevY + (double) playerEntity.getStandingEyeHeight() + (playerEntity.getY() - playerEntity.prevY) * (double) tickDelta - 0.45;
-               q = MathHelper.lerp(tickDelta, playerEntity.prevZ, playerEntity.getZ()) - d * m + e * 0.8;
-               r = playerEntity.isInSneakingPose() ? -0.1875F : 0.0F;
+               lineStart = new Vec3d(
+                       MathHelper.lerp(tickDelta, playerEntity.prevX, playerEntity.getX()),
+                       playerEntity.prevY + (playerEntity.getY() - playerEntity.prevY) * tickDelta,
+                       MathHelper.lerp(tickDelta, playerEntity.prevZ, playerEntity.getZ())
+               ).add(RotationUtil.vecPlayerToWorld(
+                       -cosBodyYaw * scaledArmOffset - sinBodyYaw * 0.8D,
+                       playerEntity.getStandingEyeHeight() + (playerEntity.isInSneakingPose() ? -0.1875D : 0.0D) - 0.45D,
+                       -sinBodyYaw * scaledArmOffset + cosBodyYaw * 0.8D,
+                       gravityDirection
+               ));
            }
-           end = new Vec3d(o,p+r,q);
        }
 
-       Vec3d delta = end.subtract(start);
+       Vec3d delta = lineStart.subtract(start);
        delta = delta.normalize();
        matrices.push();
        if (!UP.equals(delta)) {
@@ -109,7 +113,7 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
        }
        final int endLight = dispatcher.getLight(otherEntity, tickDelta);
 
-       render(entity,matrices, vertexConsumers, start, end, light, endLight);
+       render(entity,matrices, vertexConsumers, start, lineStart, light, endLight);
        matrices.pop();
    }
 
