@@ -2,6 +2,7 @@ package com.fusionflux.grapple.entity;
 
 import com.fusionflux.grapple.Grapple;
 import com.fusionflux.grapple.accessors.Accessors;
+import com.fusionflux.grapple.items.GrappleItem;
 import me.andrew.gravitychanger.api.GravityChangerAPI;
 import me.andrew.gravitychanger.util.RotationUtil;
 import net.minecraft.client.MinecraftClient;
@@ -61,7 +62,7 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
            PlayerEntity playerEntity = (PlayerEntity) otherEntity;
            int armOffset = playerEntity.getMainArm() == Arm.RIGHT ? 1 : -1;
            ItemStack itemStack = playerEntity.getMainHandStack();
-           if (!itemStack.isOf(Items.FISHING_ROD)) {
+           if (!itemStack.isOf(Grapple.GRAPPLE)) {
                armOffset = -armOffset;
            }
 

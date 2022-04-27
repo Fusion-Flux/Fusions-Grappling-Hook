@@ -52,9 +52,9 @@ dependencies {
 
 	modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
 
-	modImplementation ('com.github.Fusion-Flux:GravityChanger:v0.5.0')
+	modImplementation ('com.github.Fusion-Flux:GravityChanger:v0.5.2')
 
-	include ('com.github.Fusion-Flux:GravityChanger:v0.5.0')
+	include ('com.github.Fusion-Flux:GravityChanger:v0.5.2')
 }
 
 processResources {

@@ -11,15 +11,18 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.StackReference;
 import net.minecraft.item.DyeableItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Arm;
+import net.minecraft.util.ClickType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
@@ -125,7 +128,7 @@ public class GrappleItem extends Item implements DyeableItem {
             for (NbtElement uuid : UUIDs) {
                 if (!world.isClient) {
                     HookPoint hookPoint = (HookPoint) ((ServerWorld) world).getEntity(NbtHelper.toUuid(uuid));
-                    assert hookPoint != null;
+                    if(hookPoint != null)
                     hookPoint.kill();
                 }
             }
@@ -349,9 +352,10 @@ public class GrappleItem extends Item implements DyeableItem {
             for (NbtElement uuid : UUIDs) {
                 if (!world.isClient) {
                     HookPoint hookPoint = (HookPoint) ((ServerWorld) world).getEntity(NbtHelper.toUuid(uuid));
-                    assert hookPoint != null;
-                    hookPoint.kill();
-                }
+                    if(hookPoint!=null) {
+                        hookPoint.kill();
+                    }
+                    }
             }
 
             NbtList clearUUIDs = new NbtList();
@@ -365,6 +369,56 @@ public class GrappleItem extends Item implements DyeableItem {
             stack.getOrCreateNbt().putBoolean("isHooked", false);
         }
 
+    }
+    @Override
+    public boolean onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player) {
+        NbtList UUIDs = stack.getOrCreateNbt().getList("entities", 11);
+        player.setNoGravity(false);
+        player.setNoDrag(false);
+        for (NbtElement uuid : UUIDs) {
+            if (!player.world.isClient) {
+                HookPoint hookPoint = (HookPoint) ((ServerWorld) player.world).getEntity(NbtHelper.toUuid(uuid));
+                if(hookPoint != null) {
+                    hookPoint.kill();
+                }
+            }
+            if(!player.world.isClient) {
+                NbtList clearUUIDs = new NbtList();
+                stack.getOrCreateNbt().put("entities", clearUUIDs);
+                List<Long> emptyList = new ArrayList<>();
+                stack.getOrCreateNbt().putLongArray("xList", emptyList);
+                stack.getOrCreateNbt().putLongArray("yList", emptyList);
+                stack.getOrCreateNbt().putLongArray("zList", emptyList);
+
+                stack.getOrCreateNbt().putBoolean("isHooked", false);
+            }
+        }
+        return false;
+    }
+    @Override
+    public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
+        NbtList UUIDs = stack.getOrCreateNbt().getList("entities", 11);
+        player.setNoGravity(false);
+        player.setNoDrag(false);
+        for (NbtElement uuid : UUIDs) {
+            if (!player.world.isClient) {
+                HookPoint hookPoint = (HookPoint) ((ServerWorld) player.world).getEntity(NbtHelper.toUuid(uuid));
+                if(hookPoint != null) {
+                    hookPoint.kill();
+                }
+            }
+            if(!player.world.isClient) {
+                NbtList clearUUIDs = new NbtList();
+                stack.getOrCreateNbt().put("entities", clearUUIDs);
+                List<Long> emptyList = new ArrayList<>();
+                stack.getOrCreateNbt().putLongArray("xList", emptyList);
+                stack.getOrCreateNbt().putLongArray("yList", emptyList);
+                stack.getOrCreateNbt().putLongArray("zList", emptyList);
+
+                stack.getOrCreateNbt().putBoolean("isHooked", false);
+            }
+        }
+        return false;
     }
 
     public static BlockHitResult static_raycastBlock(World world, Vec3d start, Vec3d end,Entity entity, Predicate<BlockPos> shouldSkip) {

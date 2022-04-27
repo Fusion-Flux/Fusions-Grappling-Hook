@@ -9,11 +9,16 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+
+import java.util.Objects;
+import java.util.UUID;
 
 public class HookPoint extends Entity {
 
@@ -34,6 +39,20 @@ public class HookPoint extends Entity {
         this.getDataTracker().startTracking(CONNECTED_ENTITY, "null");
         this.getDataTracker().startTracking(COLOR, 0);
     }
+
+@Override
+public void tick() {
+    if(!this.world.isClient) {
+        if(!Objects.equals(getConnected(), "null")) {
+            Entity hookPoint = ((ServerWorld) world).getEntity(UUID.fromString(getConnected()));
+            if (hookPoint == null) {
+                this.kill();
+            }
+        }else{
+            this.kill();
+        }
+    }
+}
 
     public String getConnected() {
         return getDataTracker().get(CONNECTED_ENTITY);
