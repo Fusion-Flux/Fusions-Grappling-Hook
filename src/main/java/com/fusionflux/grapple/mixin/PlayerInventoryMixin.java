@@ -35,8 +35,12 @@ public abstract class PlayerInventoryMixin {
 //
 		ItemStack stack = this.player.currentScreenHandler.getCursorStack();
 		if(stack.isOf(Grapple.GRAPPLE)){
-			player.setNoDrag(false);
-			player.setNoGravity(false);
+            boolean grappleToggle = stack.getOrCreateNbt().getBoolean("grappleToggle");
+            if(!grappleToggle) {
+                player.setNoDrag(false);
+                player.setNoGravity(false);
+                grappleToggle = true;
+            }
 //
 			NbtList UUIDs = stack.getOrCreateNbt().getList("entities", 11);
 //
@@ -58,7 +62,7 @@ public abstract class PlayerInventoryMixin {
 //
 				stack.getOrCreateNbt().putBoolean("isHooked", false);
 			}
-//
+            stack.getOrCreateNbt().putBoolean("grappleToggle", grappleToggle);
 		}
 //
 //

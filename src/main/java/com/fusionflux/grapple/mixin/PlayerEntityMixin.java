@@ -32,8 +32,12 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 	@Inject(method = "dropItem(Lnet/minecraft/item/ItemStack;ZZ)Lnet/minecraft/entity/ItemEntity;", at = @At("HEAD"))
 	public void dropItem(ItemStack stack, boolean throwRandomly, boolean retainOwnership, CallbackInfoReturnable<ItemEntity> cir) {
 		if(stack.isOf(Grapple.GRAPPLE)){
-			this.setNoDrag(false);
-			this.setNoGravity(false);
+			boolean grappleToggle = stack.getOrCreateNbt().getBoolean("grappleToggle");
+			if(!grappleToggle) {
+				this.setNoDrag(false);
+				this.setNoGravity(false);
+				grappleToggle = true;
+			}
 
 			NbtList UUIDs = stack.getOrCreateNbt().getList("entities", 11);
 
@@ -55,7 +59,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 
 				stack.getOrCreateNbt().putBoolean("isHooked", false);
 			}
-
+			stack.getOrCreateNbt().putBoolean("grappleToggle", grappleToggle);
 		}
 	}
 

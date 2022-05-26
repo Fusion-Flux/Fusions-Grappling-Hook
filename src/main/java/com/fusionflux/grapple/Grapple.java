@@ -17,9 +17,15 @@ import org.apache.logging.log4j.Logger;
 
 public class Grapple implements ModInitializer {
 
-	public static final Logger LOGGER = LogManager.getLogger("modid");
+	public static final Logger LOGGER = LogManager.getLogger("grapple");
+
+	public static final String MODID = "grapple";
 
 	public static final GrappleItem GRAPPLE = new GrappleItem(new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
+
+	public static Identifier id(String path) {
+		return new Identifier(MODID, path);
+	}
 
 	public static final EntityType<HookPoint> HOOK_POINT = Registry.register(
 			Registry.ENTITY_TYPE,

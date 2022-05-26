@@ -1,5 +1,6 @@
 package com.fusionflux.grapple.entity;
 
+import com.fusionflux.grapple.Grapple;
 import com.fusionflux.grapple.client.packets.GrapplePackets;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -8,6 +9,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.Packet;
@@ -47,6 +49,13 @@ public void tick() {
             Entity hookPoint = ((ServerWorld) world).getEntity(UUID.fromString(getConnected()));
             if (hookPoint == null) {
                 this.kill();
+            }
+            if (hookPoint instanceof PlayerEntity player) {
+                if(player.getMainHandStack().getItem() != Grapple.GRAPPLE){
+                    if(player.getOffHandStack().getItem() != Grapple.GRAPPLE){
+                        this.kill();
+                    }
+                }
             }
         }else{
             this.kill();

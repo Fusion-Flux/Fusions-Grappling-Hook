@@ -10,7 +10,6 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BeaconBlockEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.FishingBobberEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -29,6 +28,8 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
     public HookRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
     }
+
+    public static final Identifier ROPE_TEXTURE = new Identifier("grapple:textures/entity/rope.png");
 
     private static final float RADIUS = 0.02f;
     private static final Quaternion X_90_ROT = Vec3f.POSITIVE_Y.getDegreesQuaternion(90);
@@ -82,16 +83,16 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
                        MathHelper.lerp(tickDelta, playerEntity.prevX, playerEntity.getX()),
                        MathHelper.lerp(tickDelta, playerEntity.prevY, playerEntity.getY()),
                        MathHelper.lerp(tickDelta, playerEntity.prevZ, playerEntity.getZ())
-               ).add(RotationUtil.vecPlayerToWorld(lineOffset.add(0.0D, playerEntity.getStandingEyeHeight(), 0.0D), gravityDirection));
+               ).add(RotationUtil.vecPlayerToWorld(lineOffset.add(0.0D, playerEntity.getStandingEyeHeight()-.2, 0.0D), gravityDirection));
            } else {
                lineStart = new Vec3d(
                        MathHelper.lerp(tickDelta, playerEntity.prevX, playerEntity.getX()),
                        playerEntity.prevY + (playerEntity.getY() - playerEntity.prevY) * tickDelta,
                        MathHelper.lerp(tickDelta, playerEntity.prevZ, playerEntity.getZ())
                ).add(RotationUtil.vecPlayerToWorld(
-                       -cosBodyYaw * scaledArmOffset - sinBodyYaw * 0.8D,
-                       playerEntity.getStandingEyeHeight() + (playerEntity.isInSneakingPose() ? -0.1875D : 0.0D) - 0.45D,
-                       -sinBodyYaw * scaledArmOffset + cosBodyYaw * 0.8D,
+                       -cosBodyYaw * scaledArmOffset - sinBodyYaw * 0.7D,
+                       playerEntity.getStandingEyeHeight()-.75 + (playerEntity.isInSneakingPose() ? -0.1875D : 0.0D) - 0.45D,
+                       -sinBodyYaw * scaledArmOffset + cosBodyYaw * 0.7D,
                        gravityDirection
                ));
            }
@@ -119,7 +120,7 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
    }
 
     private static void render(final HookPoint entity,final MatrixStack matrixStack, final VertexConsumerProvider consumers, final Vec3d start, final Vec3d end, final int startLight, final int endLight) {
-        final VertexConsumer consumer = consumers.getBuffer(RenderLayer.getEntitySolid(/*Your Texture here*/BeaconBlockEntityRenderer.BEAM_TEXTURE));
+        final VertexConsumer consumer = consumers.getBuffer(RenderLayer.getEntitySolid(/*Your Texture here*/ROPE_TEXTURE));
         final double length = end.distanceTo(start);
         renderCap(entity,consumer, 0, startLight, false, matrixStack);
         renderCap(entity,consumer, length, endLight, true, matrixStack);

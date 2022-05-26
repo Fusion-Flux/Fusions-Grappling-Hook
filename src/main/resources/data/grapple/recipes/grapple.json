@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "iIL",
+    "ICW",
+    " c "
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "I": {
+      "item": "minecraft:iron_nugget"
+    },
+    "L": {
+      "item": "minecraft:lead"
+    },
+    "C": {
+      "item": "minecraft:crossbow"
+    },
+    "W": {
+      "item": "minecraft:copper_block"
+    },
+    "c": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "item": "grapple:grapple",
+    "count": 1
+  }
+}
