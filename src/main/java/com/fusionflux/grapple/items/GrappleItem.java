@@ -169,6 +169,7 @@ public class GrappleItem extends Item implements DyeableItem {
         boolean grappleToggle = tag.getBoolean("grappleToggle");
             if (isHookInUse)
                 if (holdingHook) {
+                    entity.fallDistance = 0;
                     boolean initalBoost = tag.getBoolean("initalBoost");
                     boolean isHooked = tag.getBoolean("isHooked");
                     double distance = tag.getDouble("distance");

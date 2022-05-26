@@ -75,8 +75,8 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
            double scaledArmOffset = (double) armOffset * 0.35D;
            //Vec3d lineStart;
            if ((this.dispatcher.gameOptions == null || this.dispatcher.gameOptions.getPerspective().isFirstPerson()) && playerEntity == MinecraftClient.getInstance().player) {
-               Vec3d lineOffset = RotationUtil.vecWorldToPlayer(this.dispatcher.camera.getProjection().getPosition((float) armOffset * 0.525F, -0.1F), gravityDirection);
-               lineOffset = lineOffset.multiply(960.0D / this.dispatcher.gameOptions.fov);
+               Vec3d lineOffset = RotationUtil.vecWorldToPlayer(this.dispatcher.camera.getProjection().getPosition((float) armOffset * 0.4F, -0.1F), gravityDirection);
+               lineOffset = lineOffset.multiply(860.0D / this.dispatcher.gameOptions.fov);
                lineOffset = lineOffset.rotateY(sinHandSwingProgress * 0.5F);
                lineOffset = lineOffset.rotateX(-sinHandSwingProgress * 0.7F);
                lineStart = new Vec3d(

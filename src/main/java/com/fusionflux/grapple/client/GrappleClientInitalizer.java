@@ -4,6 +4,8 @@ import com.fusionflux.grapple.Grapple;
 import com.fusionflux.grapple.client.packets.GrapplePackets;
 import com.fusionflux.grapple.entity.HookRenderer;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
@@ -20,6 +22,11 @@ public class GrappleClientInitalizer implements ClientModInitializer {
         GrapplePackets.registerPackets();
         EntityRendererRegistry.INSTANCE.register(Grapple.HOOK_POINT, HookRenderer::new);
         PredicateStuff.init(FabricModelPredicateProviderRegistry::register);
+        registerRenderLayers();
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static void registerRenderLayers() {
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> tintIndex > 0 ? -1 : ((DyeableItem) stack.getItem()).getColor(stack), Grapple.GRAPPLE);
     }
 }
