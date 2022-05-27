@@ -3,17 +3,17 @@
   "id": "grapple",
   "version": "${version}",
 
-  "name": "Grapple",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Fusions Grappling Hook",
+  "description": "A Grappling Hook Mod For Minecraft!",
   "authors": [
-    "Me!"
+    "Fusion Flux"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "issues": "https://github.com/Fusion-Flux/Grapple/issues",
+    "sources": "https://github.com/Fusion-Flux/Grapple"
   },
 
-  "license": "CC0-1.0",
+  "license": "MIT",
   "icon": "assets/grapple/icon.png",
 
   "environment": "*",

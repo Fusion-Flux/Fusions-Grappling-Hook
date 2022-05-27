@@ -65,9 +65,6 @@ dependencies {
 	// Includes Cardinal Components API as a Jar-in-Jar dependency (optional but recommended)
 	include "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4"
 
-	modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:4.1.4"
-	// Includes Cardinal Components API as a Jar-in-Jar dependency (optional but recommended)
-	include "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:4.1.4"
 }
 
 processResources {
