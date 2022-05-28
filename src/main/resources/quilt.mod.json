@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "quilt_loader": {
+    "id": "grapple",
+    "group": "com.fusionflux",
+    "provides": [],
+    "version": "${version}",
+    "entrypoints": {
+      "init": "com.fusionflux.grapple.Grapple",
+      "client_init": "com.fusionflux.grapple.client.GrappleClient"
+    },
+    "depends": [
+      {
+        "id": "quilt_loader",
+        "versions": ">=0.16.0-"
+      },
+      {
+        "id": "quilted_fabric_api",
+        "versions": ">=1.0.0-"
+      },
+      {
+        "id": "minecraft",
+        "versions": ">=1.18.2"
+      }
+    ],
+    "breaks": [
+      {
+        "id": "fabric",
+        "reason": "This mod uses QSL for its content, please use Quilted Fabric API instead of Fabric API to allow for this.",
+        "unless": "quilted_fabric_api"
+      }
+    ],
+    "metadata": {
+      "name": "Fusions Grappling Hook",
+      "description": "A Grappling Hook Mod For Minecraft!",
+      "contributors": {
+        "Fusion Flux": "Developer",
+        "Siuolplex": "Quilt Porter"
+      },
+      "license": "MIT",
+      "contact": {
+        "issues": "https://github.com/Fusion-Flux/Grapple/issues",
+        "sources": "https://github.com/Fusion-Flux/Grapple"
+      },
+      "icon": "assets/grapple/icon.png"
+    },
+    "intermediate_mappings": "net.fabricmc:intermediary"
+  },
+  "mixin": [
+    "grapple.mixins.json"
+  ],
+  "lithium:options": {
+    "mixin.entity.collisions": false,
+    "mixin.entity.fast_suffocation_check": false
+  }
+}
