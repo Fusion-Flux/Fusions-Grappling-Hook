@@ -10,10 +10,13 @@ import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.util.TriConsumer;
+
+import static com.fusionflux.grapple.Grapple.MODID;
+
 @Environment(EnvType.CLIENT)
 public class PredicateStuff {
     public static void init(TriConsumer<Item, Identifier, UnclampedModelPredicateProvider> modelPredicateProviderFactory) {
-        modelPredicateProviderFactory.accept(Registry.ITEM.get(Grapple.id("grapple")), new Identifier("hooked"),
+        modelPredicateProviderFactory.accept(Registry.ITEM.get(new Identifier(MODID, "grapple")), new Identifier("hooked"),
                 (itemStack, clientWorld, livingEntity, i) -> GrappleItem.getIsHooked(itemStack));
     }
 }

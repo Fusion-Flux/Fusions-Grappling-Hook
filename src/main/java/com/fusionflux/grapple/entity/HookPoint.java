@@ -3,7 +3,6 @@ package com.fusionflux.grapple.entity;
 import com.fusionflux.grapple.Grapple;
 import com.fusionflux.grapple.client.packets.GrapplePackets;
 import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
@@ -18,6 +17,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
 
 import java.util.Objects;
 import java.util.UUID;

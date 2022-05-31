@@ -59,7 +59,7 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
 
 
        if(otherEntity.getType()== EntityType.PLAYER){
-           Direction gravityDirection = (GravityChangerAPI.getGravityDirection((PlayerEntity) otherEntity));
+           Direction gravityDirection = (GravityChangerAPI.getGravityDirection(otherEntity));
            PlayerEntity playerEntity = (PlayerEntity) otherEntity;
            int armOffset = playerEntity.getMainArm() == Arm.RIGHT ? 1 : -1;
            ItemStack itemStack = playerEntity.getMainHandStack();
@@ -144,8 +144,8 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
         int r = (color & 0xFF0000) >> 16;
         int g = (color & 0xFF00) >> 8;
         int b = color & 0xFF;
-        final Matrix4f model = stack.peek().getPositionMatrix();
-        final Matrix3f normal = stack.peek().getNormalMatrix();
+        final Matrix4f model = stack.peek().getModel();
+        final Matrix3f normal = stack.peek().getNormal();
         if(end) {
             vertexConsumer.vertex(model, RADIUS, (float)d, -RADIUS).color(r,g,b,1f).texture(0, 0).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(normal, 0, 1, 0).next();
             vertexConsumer.vertex(model, -RADIUS, (float)d, -RADIUS).color(r,g,b,1f).texture(0, 1).overlay(OverlayTexture.DEFAULT_UV).light(light).normal(normal, 0, 1, 0).next();
@@ -160,8 +160,8 @@ public class HookRenderer extends EntityRenderer<HookPoint> {
     }
 
     private static void side(final HookPoint entity,final MatrixStack stack, final VertexConsumer vertexConsumer, final double length, final int lightStart, final int lightEnd) {
-        final Matrix4f model = stack.peek().getPositionMatrix();
-        final Matrix3f normal = stack.peek().getNormalMatrix();
+        final Matrix4f model = stack.peek().getModel();
+        final Matrix3f normal = stack.peek().getNormal();
         //Radius of rope here
 
         int color = entity.getColor() * -1;
