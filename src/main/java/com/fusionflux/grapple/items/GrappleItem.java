@@ -163,7 +163,8 @@ public class GrappleItem extends Item implements DyeableItem {
                 break;
             }
         }
-        Vec3d entityPos = new Vec3d(entity.getPos().x,entity.getPos().y + (entity.getHeight()/2),entity.getPos().z);
+        Vec3d adjustmentPos = RotationUtil.vecPlayerToWorld(0d,(entity.getHeight()/2),0d, GravityChangerAPI.getGravityDirection(entity));
+        Vec3d entityPos = new Vec3d(entity.getPos().x+ adjustmentPos.x,entity.getPos().y + adjustmentPos.y,entity.getPos().z+ adjustmentPos.z);
             NbtCompound tag = stack.getOrCreateNbt();
         boolean isHookInUse = tag.getBoolean("isHookInUse");
         boolean grappleToggle = tag.getBoolean("grappleToggle");

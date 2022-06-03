@@ -52,7 +52,7 @@ dependencies {
 	}
 
 	//Gravity Changer - UPDATE TO NEWEST VERSION WHEN ITS RELEASED ON MODRINTH
-	modImplementation ('com.github.Fusion-Flux:GravityChanger:v0.7.6'){
+	modImplementation include ("maven.modrinth:fusions-gravity-api:0.7.7+fabric"){
 		exclude group: "net.fabricmc.fabric-api"
 		exclude group: "net.fabricmc"
 	}
