@@ -46,13 +46,12 @@ dependencies {
 	modImplementation "org.quiltmc:quilt-loader:${project.loader_version}"
 	modImplementation ("org.quiltmc.quilted-fabric-api:quilted-fabric-api:${qsl_version}+${qfapi_version}")
 
-	modImplementation ("com.terraformersmc:modmenu:3.1.1") {
+	modImplementation ("com.terraformersmc:modmenu:${project.mod_menu_version}") {
 		exclude group: "net.fabricmc.fabric-api"
 		exclude group: "net.fabricmc"
 	}
 
-	//Gravity Changer - UPDATE TO NEWEST VERSION WHEN ITS RELEASED ON MODRINTH
-	modImplementation include ("maven.modrinth:gravity-api:0.7.10+fabric+1.18"){
+	modImplementation include ("maven.modrinth:gravity-api:${project.gravity_api_version}"){
 		exclude group: "net.fabricmc.fabric-api"
 		exclude group: "net.fabricmc"
 	}
@@ -64,12 +63,18 @@ dependencies {
 	}
 
 	//Cardinal Components
-	modImplementation ("dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4") {
+	modImplementation ("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 		exclude(group: "net.fabricmc")
 	}
 
-	include "dev.onyxstudios.cardinal-components-api:cardinal-components-base:4.1.4"
+	modImplementation ("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_version}") {
+		exclude(group: "net.fabricmc.fabric-api")
+		exclude(group: "net.fabricmc")
+	}
+
+	// include "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_version}"
+	// include "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_version}"
 }
 
 processResources {
